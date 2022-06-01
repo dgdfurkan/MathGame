@@ -32,6 +32,7 @@ public class ChangeBackground : MonoBehaviour
         {
             BackgroundImage.GetComponent<Image>().sprite = Backgrounds[PlayerPrefs.GetInt("selectedIndex")];
             panelBackground.GetComponent<Image>().sprite = Backgrounds[PlayerPrefs.GetInt("selectedIndex")];
+            selectedIndex = PlayerPrefs.GetInt("selectedIndex");
         }
     }
     public void ChangeBackPlus()

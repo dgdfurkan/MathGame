@@ -14,7 +14,8 @@ public class Processes : MonoBehaviour
     [SerializeField] private Text rights, wrongs, result, number1Text, processorText, number2Text; 
     [SerializeField] private InputField resultNumber;
     private int number1, processor, number2;
-    private int resultInScript, correctNum, falseNum;
+    private int resultInScript, correctNum, falseNum, correctStreak = 0, falseStreak = 0;
+    [SerializeField] private AudioSource correctSound1, correctSound2, correctSound3, falseSound1;
     #endregion
 
     #endregion
@@ -68,6 +69,24 @@ public class Processes : MonoBehaviour
                 PlayerPrefs.SetInt("correctNum", correctNum);
                 rights.text = "RIGHTS :" + " " + correctNum;
                 result.text = "CORRECT";
+
+                correctStreak += 1;
+                if (falseStreak != 0)
+                {
+                    falseStreak -= 1;
+                }
+                switch (correctStreak)
+                {
+                    case 1:
+                        correctSound1.Play();
+                        break;
+                    case 2:
+                        correctSound2.Play();
+                        break;
+                    default:
+                        correctSound3.Play();
+                        break;
+                }
             }
             else
             {
@@ -76,6 +95,16 @@ public class Processes : MonoBehaviour
                 PlayerPrefs.SetInt("falseNum", falseNum);
                 wrongs.text = "WRONGS :" + " " + falseNum;
                 result.text = "FALSE";
+
+                if (falseStreak == 0)
+                {
+                    falseStreak += 1;
+                }
+                if (correctStreak != 0)
+                {
+                    correctStreak = 0;
+                }
+                falseSound1.Play();
             }
             StartCoroutine(Delay());
         }

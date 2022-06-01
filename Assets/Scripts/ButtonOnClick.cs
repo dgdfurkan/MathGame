@@ -16,6 +16,7 @@ public class ButtonOnClick : MonoBehaviour
     [Space(25)] [SerializeField] private Sprite musicOn;
     [SerializeField] private Sprite musicOff;
     [SerializeField] private AudioSource buttonSound, backgroundSound;
+    [SerializeField] private List<AudioSource> answersSounds;
     [SerializeField] private Slider musicVolume;
 
     #endregion
@@ -132,12 +133,20 @@ public class ButtonOnClick : MonoBehaviour
             musicVolume.value = PlayerPrefs.GetFloat("musicVolume");
             buttonSound.volume = musicVolume.value;
             backgroundSound.volume = musicVolume.value;
+            for (int i = 0; i < answersSounds.Count; i++)
+            {
+                answersSounds[i].volume = musicVolume.value;
+            }
         }
         musicVolume.onValueChanged.AddListener((v) =>
         {
             PlayerPrefs.SetFloat("musicVolume", v);
             buttonSound.volume = musicVolume.value;
             backgroundSound.volume = musicVolume.value;
+            for (int i = 0; i < answersSounds.Count; i++)
+            {
+                answersSounds[i].volume = musicVolume.value;
+            }
         });
     }
 }
