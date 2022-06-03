@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class Processes : MonoBehaviour
 {
@@ -11,11 +12,16 @@ public class Processes : MonoBehaviour
 
     #region Serializable Variables
 
-    [SerializeField] private Text rights, wrongs, result, number1Text, processorText, number2Text; 
+    public Text rights, wrongs, result, number1Text, processorText, number2Text; 
     [SerializeField] private InputField resultNumber;
     private int number1, processor, number2;
-    private int resultInScript, correctNum, falseNum, correctStreak = 0, falseStreak = 0;
+    public int resultInScript, correctNum, falseNum, correctStreak = 0, falseStreak = 0;
     [SerializeField] private AudioSource correctSound1, correctSound2, correctSound3, falseSound1;
+    [SerializeField] private GameObject helpButton, helpPanel;
+    private int randomNumber, lastNumber;
+    private float timerForHelp;
+    private bool timerForBool;
+
     #endregion
 
     #endregion
@@ -35,16 +41,80 @@ public class Processes : MonoBehaviour
     private void Start()
     {
         NewQuestion();
-        if (PlayerPrefs.HasKey("correctNum"))
+        //if (PlayerPrefs.HasKey("correctNum"))
+        //{
+        //    correctNum = PlayerPrefs.GetInt("correctNum");
+        //    rights.text = "RIGHTS :" + " " + correctNum;
+        //}
+        //if (PlayerPrefs.HasKey("falseNum"))
+        //{
+        //    falseNum = PlayerPrefs.GetInt("falseNum");
+        //    wrongs.text = "WRONGS :" + " " + falseNum;
+        //}
+        timerForBool = true;
+    }
+
+    private void Update()
+    {
+        if (timerForBool)
         {
-            correctNum = PlayerPrefs.GetInt("correctNum");
-            rights.text = "RIGHTS :" + " " + correctNum;
+            timerForHelp += Time.deltaTime;
+            //Debug.Log(timerForHelp);
         }
-        if (PlayerPrefs.HasKey("falseNum"))
+        
+        if (timerForHelp >= 6)
         {
-            falseNum = PlayerPrefs.GetInt("falseNum");
-            wrongs.text = "WRONGS :" + " " + falseNum;
+            OpenHelp();
         }
+    }
+
+    private void OpenHelp()
+    {
+        helpButton.SetActive(true);
+        timerForBool = false;
+        timerForHelp = 0f;
+    }
+
+    public void HelpFromTeacher()
+    {
+        helpButton.GetComponent<Button>().interactable = false;
+        helpPanel.SetActive(true);
+        Text[] options = helpPanel.GetComponentsInChildren<Text>();
+
+        for (int i = 0; i < options.Length; i++)
+        {
+            if (resultInScript != 0)
+            {
+                options[i].text = Random.Range(resultInScript/3 ,resultInScript*3).ToString();
+                //Debug.Log(options[i].text);
+            }
+        }
+
+        int e = Random.Range(0, options.Length - 1);
+
+        for (int i = 0; i < options.Length; i++)
+        {
+            if (options[i].text == resultInScript.ToString())
+            {
+                //options[e].text = resultInScript.ToString();
+                goto sssss;
+            }
+            if (options[i].text != resultInScript.ToString())
+            {
+                options[e].text = resultInScript.ToString();
+            }
+            sssss:
+            break;
+        }
+    }
+
+    public void ClickOnOptions()
+    {
+        PlayerPrefs.SetString("optionSelected", EventSystem.current.currentSelectedGameObject.gameObject.GetComponent<Text>().text);
+        resultNumber.text = PlayerPrefs.GetString("optionSelected");
+
+        ResultControl();
+        //Debug.Log(EventSystem.current.currentSelectedGameObject.name);
     }
 
     public void ResultControl()
@@ -59,6 +129,8 @@ public class Processes : MonoBehaviour
         //}
 
         //int resultNumberInt = int.Parse(resultNumber.text);
+        timerForBool = false;
+        timerForHelp = 0f;
 
         if (resultNumber.text != "")
         {
@@ -120,6 +192,7 @@ public class Processes : MonoBehaviour
         //    wrongs.text = "WRONGS :" + " " + falseNum;
         //    result.text = "FALSE";
         //}
+        PlayerScores.Instance.OnSubmit();
     }
 
     IEnumerator Delay()
@@ -130,6 +203,11 @@ public class Processes : MonoBehaviour
     }
     public void NewQuestion()
     {
+        timerForBool = true;
+        timerForHelp = 0f;
+        helpButton.SetActive(false);
+        helpPanel.SetActive(false);
+        helpButton.GetComponent<Button>().interactable = true;
         resultNumber.GetComponent<InputField>().enabled = true;
         resultNumber.ActivateInputField();
         resultNumber.Select();

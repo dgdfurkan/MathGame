@@ -70,6 +70,7 @@ public class ButtonOnClick : MonoBehaviour
         inGamePanel.SetActive(true);
         gamePanel.SetActive(true);
         Processes.Instance.NewQuestion();
+        //PlayerScores.Instance.GetGet();
     }
 
     public void PanelLeaderboard()
