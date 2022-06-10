@@ -10,6 +10,10 @@ public class SaveUsername : MonoBehaviour
     #region Serialized Variables
     
     [SerializeField] private InputField username;
+    [SerializeField] private Text usernameText;
+
+    [SerializeField] private Text[] texts;
+
 
     #endregion
 
@@ -19,11 +23,28 @@ public class SaveUsername : MonoBehaviour
         if (PlayerPrefs.HasKey("username"))
         {
             username.text = PlayerPrefs.GetString("username").ToString();
+            usernameText.text = PlayerPrefs.GetString("username").ToString();
         }
     }
     public void SaveUsernameInput()
     {
         PlayerPrefs.SetString("username", username.text);
         //Debug.Log(PlayerPrefs.GetString("username"));
+    }
+
+    private void FixedUpdate()
+    {
+        //usernameText.text = PlayerPrefs.GetString("username").ToString();
+    }
+
+    public void OnValueChange()
+    {
+        usernameText.text = username.text;
+        
+        for (int i = 0; i <7; i++)
+        {
+            texts[i].text = username.text;
+        }
+
     }
 }

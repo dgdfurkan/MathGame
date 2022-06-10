@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 public class Processes : MonoBehaviour
 {
@@ -15,7 +17,7 @@ public class Processes : MonoBehaviour
     public Text rights, wrongs, result, number1Text, processorText, number2Text; 
     [SerializeField] private InputField resultNumber;
     private int number1, processor, number2;
-    public int resultInScript, correctNum, falseNum, correctStreak = 0, falseStreak = 0;
+    public int resultInScript, correctNum, falseNum, correctStreak, falseStreak;
     [SerializeField] private AudioSource correctSound1, correctSound2, correctSound3, falseSound1;
     [SerializeField] private GameObject helpButton, helpPanel;
     private int randomNumber, lastNumber;
@@ -66,6 +68,11 @@ public class Processes : MonoBehaviour
         {
             OpenHelp();
         }
+
+        if (resultNumber.text != "" && Input.GetKeyDown(KeyCode.Z))
+        {
+            ResultControl();
+        }
     }
 
     private void OpenHelp()
@@ -112,6 +119,8 @@ public class Processes : MonoBehaviour
     {
         PlayerPrefs.SetString("optionSelected", EventSystem.current.currentSelectedGameObject.gameObject.GetComponent<Text>().text);
         resultNumber.text = PlayerPrefs.GetString("optionSelected");
+
+        Debug.Log(EventSystem.current.currentSelectedGameObject.gameObject);
 
         ResultControl();
         //Debug.Log(EventSystem.current.currentSelectedGameObject.name);

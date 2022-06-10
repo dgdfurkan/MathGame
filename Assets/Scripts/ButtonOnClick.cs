@@ -6,12 +6,14 @@ using UnityEngine.SceneManagement;
 
 public class ButtonOnClick : MonoBehaviour
 {
+    public static ButtonOnClick Instance;
+
     #region Self Variables
 
     #region Serialized Variables
 
     [Header("Panels")] [SerializeField] private GameObject stabilPanel;
-    [SerializeField] private GameObject backgroundMainPanel, levelPanel, processPanel, inGamePanel, gamePanel, leaderboardPanel, schoolPanel, settingsPanel, backgroundChangePanel, musicButton;
+    [SerializeField] private GameObject loginPanel, backgroundMainPanel, levelPanel, processPanel, inGamePanel, gamePanel, leaderboardPanel, schoolPanel, settingsPanel, backgroundChangePanel, musicButton;
 
     [Space(25)] [SerializeField] private Sprite musicOn;
     [SerializeField] private Sprite musicOff;
@@ -25,8 +27,17 @@ public class ButtonOnClick : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != null)
+        {
+            Destroy(this.gameObject);
+        }
+
         Panels();
-        backgroundMainPanel.SetActive(true);
+        loginPanel.SetActive(true);
         MusicVolume();
     }
 
@@ -35,6 +46,7 @@ public class ButtonOnClick : MonoBehaviour
     public void Panels()
     {
         stabilPanel.SetActive(true);
+        loginPanel.SetActive(false);
         backgroundMainPanel.SetActive(false);
         levelPanel.SetActive(false);
         processPanel.SetActive(false);
@@ -44,6 +56,12 @@ public class ButtonOnClick : MonoBehaviour
         schoolPanel.SetActive(false);
         settingsPanel.SetActive(false);
         backgroundChangePanel.SetActive(false);
+    }
+
+    public void PanelLogin()
+    {
+        Panels();
+        loginPanel.SetActive(true);
     }
 
     public void PanelBackgroundMain()
