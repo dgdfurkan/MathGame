@@ -16,7 +16,7 @@ jobs:
           git config --global user.email "frkngndz60@gmail.com"
           git config --global user.name "dgdfurkan"
       
-      - name: Check for repositories with Unity projects
+      - name: Check for repositories with GunduzTech inside Assets
         id: filter-repos
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
@@ -26,16 +26,16 @@ jobs:
           
           FINAL_REPOS=()
           for repo in $REPO_LIST; do
-            echo "Checking $repo for Unity project..."
+            echo "Checking $repo for Assets/GunduzTech directory..."
             
-            # Check if this is a Unity project by looking for the Assets directory
-            ASSETS_CHECK=$(curl -s -H "Authorization: token ${GH_PAT}" "https://api.github.com/repos/dgdfurkan/$repo/contents/Assets")
-            
-            if [[ "$ASSETS_CHECK" != *"Not Found"* && "$ASSETS_CHECK" != *"404"* ]]; then
+            # Use GitHub API to check if the Assets/GunduzTech directory exists without cloning
+            DIR_CHECK=$(curl -s -H "Authorization: token ${GH_PAT}" "https://api.github.com/repos/dgdfurkan/$repo/contents/Assets/GunduzTech")
+
+            if [[ "$DIR_CHECK" != *"Not Found"* && "$DIR_CHECK" != *"404"* ]]; then
               FINAL_REPOS+=("$repo")
-              echo "$repo is a Unity project."
+              echo "$repo uses Assets/GunduzTech."
             else
-              echo "Skipping $repo, not a Unity project."
+              echo "Skipping $repo, no Assets/GunduzTech found."
             fi
           done
           
@@ -51,7 +51,7 @@ jobs:
           git config --global user.email "frkngndz60@gmail.com"
           git config --global user.name "dgdfurkan"
       
-      - name: Update All Unity projects with GunduzTech
+      - name: Update All GunduzTech-based projects (Inside Assets)
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
@@ -63,28 +63,19 @@ jobs:
               git clone https://${{ secrets.GH_PAT }}@github.com/dgdfurkan/$repo.git
               cd $repo
               
-              # Check if Assets directory exists
-              if [ -d "Assets" ]; then
+              if [ -d "Assets/GunduzTech" ]; then
                 git checkout main
                 git pull origin main
                 
-                # Check if GunduzTech already exists in Assets - using directory existence instead of git ls-tree
-                if [ -d "Assets/GunduzTech" ]; then
-                  echo "Updating existing GunduzTech in Assets directory..."
-                  git subtree pull --prefix=Assets/GunduzTech https://${{ secrets.GH_PAT }}@github.com/dgdfurkan/GunduzTech.git main --squash || {
-                    echo "Subtree pull failed, trying to add instead..."
-                    git subtree add --prefix=Assets/GunduzTech https://${{ secrets.GH_PAT }}@github.com/dgdfurkan/GunduzTech.git main --squash
-                  }
-                else
-                  echo "Adding GunduzTech to Assets directory..."
+                if ! git ls-tree -d HEAD Assets/GunduzTech >/dev/null 2>&1; then
                   git subtree add --prefix=Assets/GunduzTech https://${{ secrets.GH_PAT }}@github.com/dgdfurkan/GunduzTech.git main --squash
+                else
+                  git subtree pull --prefix=Assets/GunduzTech https://${{ secrets.GH_PAT }}@github.com/dgdfurkan/GunduzTech.git main --squash
                 fi
                 
                 git add .
-                git commit -m "Auto-update GunduzTech in Unity Assets" || echo "No changes to commit"
+                git commit -m "Auto-update GunduzTech inside Assets" || echo "No changes to commit"
                 git push origin main
-              else
-                echo "Error: Assets directory not found in $repo"
               fi
               
               cd ..
